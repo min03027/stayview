@@ -2,8 +2,8 @@ import streamlit as st
 import pandas as pd
 
 # 수정된 CSV 파일 경로 (Streamlit Cloud용 상대 경로)
-data_path = "merged_refined_with_aspect_10hotels.csv"
-df = pd.read_csv(data_path, encoding='utf-8-sig')
+data_path = "final_all.csv"
+df = pd.read_csv(data_path, encoding='euc-kr')
 
 st.set_page_config(page_title="호텔 리뷰 감성 요약", layout="wide")
 st.title("🏨 호텔 리뷰 요약 및 항목별 분석")
