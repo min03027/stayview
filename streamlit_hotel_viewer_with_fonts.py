@@ -5,6 +5,9 @@ import pandas as pd
 data_path = "final_all"
 df = pd.read_csv(data_path, encoding='euc-kr')
 
+st.set_page_config(page_title="호텔 리뷰 감성 요약", layout="wide")
+st.title("🏨 호텔 리뷰 요약 및 항목별 분석")
+
 # 지역 선택 (selectbox 스타일)
 df = df.dropna(subset=['Hotel', 'Location'])  # NaN 제거
 locations = df['Location'].unique()
@@ -42,3 +45,4 @@ st.bar_chart(aspect_scores, use_container_width=True)
 # Raw 데이터 보기
 with st.expander("📄 원본 데이터 보기"):
     st.dataframe(df[df['Hotel'] == selected_hotel].reset_index(drop=True))
+
