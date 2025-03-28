@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 
 # CSV 파일 경로
-data_path = "final_all"
+data_path = "final_all.csv"
 df = pd.read_csv(data_path, encoding='euc-kr')
 
 st.set_page_config(page_title="호텔 리뷰 감성 요약", layout="wide")
@@ -45,4 +45,5 @@ st.bar_chart(aspect_scores, use_container_width=True)
 # Raw 데이터 보기
 with st.expander("📄 원본 데이터 보기"):
     st.dataframe(df[df['Hotel'] == selected_hotel].reset_index(drop=True))
+
 
