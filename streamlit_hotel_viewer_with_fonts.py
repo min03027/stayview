@@ -39,7 +39,7 @@ aspect_columns = ['소음', '가격', '위치', '서비스', '청결', '편의�
 aspect_scores = hotel_data[aspect_columns]
 
 # 색상 지정: 음수는 빨간색, 양수는 파란색
-bar_colors = ['#FF6B6B' if v < 0 else '#4EA8DE' for v in aspect_scores]
+bar_colors = ['#F05650' if v < 0 else '#4EA8DE' for v in aspect_scores]
 st.bar_chart(aspect_scores, use_container_width=True)
 
 # Raw 데이터 보기
