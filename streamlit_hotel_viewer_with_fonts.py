@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import altair as alt
 
 # CSV 파일 경로
 data_path = "final_all.csv"
@@ -38,9 +39,19 @@ st.subheader("📊 항목별 평균 점수")
 aspect_columns = ['소음', '가격', '위치', '서비스', '청결', '편의시설']
 aspect_scores = hotel_data[aspect_columns]
 
-# 색상 지정: 음수는 빨간색, 양수는 파란색
-bar_colors = ['#F05650' if v < 0 else '#4EA8DE' for v in aspect_scores]
-st.bar_chart(aspect_scores, use_container_width=True)
+plot_df = pd.DataFrame({
+    "항목": aspect_columns,
+    "점수": aspect_scores.values,
+    "색상": ['#FF6B6B' if v < 0 else '#4EA8DE' for v in aspect_scores.values]
+})
+
+chart = alt.Chart(plot_df).mark_bar().encode(
+    x=alt.X('항목:N', sort=None),
+    y=alt.Y('점수:Q'),
+    color=alt.Color('색상:N', scale=None)
+).properties(width=600, height=400)
+
+st.altair_chart(chart, use_container_width=True)
 
 # Raw 데이터 보기
 with st.expander("📄 원본 데이터 보기"):
