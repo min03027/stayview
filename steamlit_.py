@@ -11,7 +11,7 @@ import streamlit as st
 import pandas as pd
 
 # CSV 파일 경로 (로컬 또는 드라이브 연결 시 수정)
-data_path = "/content/drive/MyDrive/제주 호텔 모음(이름택)/모델링중/final_all.csv"
+data_path = "final_all.csv"
 df = pd.read_csv(data_path)
 
 st.set_page_config(page_title="호텔 리뷰 감성 요약", layout="wide")
