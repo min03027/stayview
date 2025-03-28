@@ -8,10 +8,10 @@ df = pd.read_csv(data_path, encoding='euc-kr')
 st.set_page_config(page_title="호텔 리뷰 감성 요약", layout="wide")
 st.title("🏨 호텔 리뷰 요약 및 항목별 분석")
 
-# 지역 선택 (selectbox 스타일)
+# 지역 선택 (radio 버튼 스타일)
 df = df.dropna(subset=['Hotel', 'Location'])  # NaN 제거
 locations = df['Location'].unique()
-selected_location = st.selectbox("지역을 선택하세요", sorted(locations))
+selected_location = st.radio("지역을 선택하세요", sorted(locations), horizontal=True)
 
 # 지역 기반 호텔 리스트
 hotels = df[df['Location'] == selected_location]['Hotel'].unique()
