@@ -15,27 +15,29 @@ df = df.dropna(subset=['Hotel', 'Location', 'Latitude', 'Longitude'])
 
 aspect_columns = ['소음', '가격', '위치', '서비스', '청결', '편의시설']
 
+# -------------------------- 지역 선택 (본문 상단) --------------------------
+locations = df['Location'].unique()
+selected_location = st.radio("지역을 선택하세요", sorted(locations), horizontal=True)
+
 # -------------------------- 사이드바 --------------------------
 st.sidebar.title("🔍 항목별 상위 호텔")
-
-# 지역 선택
-locations = df['Location'].unique()
-selected_location = st.sidebar.selectbox("지역 선택", sorted(locations))
 
 # 정렬 기준 선택
 aspect_to_sort = st.sidebar.selectbox("정렬 기준", aspect_columns)
 
-# 정렬된 호텔 리스트
+# 지역 내 정렬된 호텔 리스트 (중복 제거)
 sorted_hotels = (
     df[df['Location'] == selected_location]
     .sort_values(by=aspect_to_sort, ascending=False)
     .drop_duplicates(subset='Hotel')
 )
 
+# 점수와 함께 라벨 표시
 top_hotels = sorted_hotels[['Hotel', aspect_to_sort]].head(5)
-hotel_names = top_hotels['Hotel'].tolist()
-
-selected_hotel = st.sidebar.radio("상위 호텔 선택", hotel_names)
+hotel_labels = [f"{row['Hotel']} - ⭐ {row[aspect_to_sort]:.2f}" for _, row in top_hotels.iterrows()]
+hotel_map = dict(zip(hotel_labels, top_hotels['Hotel']))
+selected_hotel_label = st.sidebar.radio("상위 호텔 선택", hotel_labels)
+selected_hotel = hotel_map[selected_hotel_label]
 
 # -------------------------- 지도 --------------------------
 st.markdown("---")
@@ -104,5 +106,6 @@ st.altair_chart(chart, use_container_width=True)
 # -------------------------- 원본 데이터 --------------------------
 with st.expander("📄 원본 데이터 보기"):
     st.dataframe(df[df['Hotel'] == selected_hotel].reset_index(drop=True))
+
 
 
