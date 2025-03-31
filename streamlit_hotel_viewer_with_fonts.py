@@ -11,13 +11,19 @@ from PIL import Image
 data_path = "hotel_fin_0331_2.csv"
 df = pd.read_csv(data_path, encoding='euc-kr')
 
+import streamlit as st
+from PIL import Image
+
 # 페이지 설정
-st.set_page_config(layout="wide")
+st.set_page_config(layout="wide", page_title="Stay-view")
 
-# 배경 이미지
-st.image("image.png", use_column_width=True)
+# 이미지 불러오기 (배경 or 상단용)
+image = Image.open("image.png")
 
-# 상단 타이틀 + 부제
+# 이미지 1/3 크기로 출력
+st.image(image, width=int(image.width / 3))
+
+# HTML 스타일 커스터마이징
 st.markdown("""
 <style>
 .big-title {
@@ -43,19 +49,14 @@ st.markdown("""
     font-weight: bold;
     letter-spacing: 2px;
     margin-bottom: 10px;
+    color: black;
 }
-.orange-circle {
-    width: 120px;
-    height: 120px;
-    border-radius: 60px;
-    background-color: #f97316;
-    color: white;
-    text-align: center;
-    padding-top: 35px;
-    font-weight: bold;
-    position: absolute;
-    left: 30px;
-    top: 200px;
+hr {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    border: none;
+    height: 1px;
+    background-color: #e0e0e0;
 }
 </style>
 
@@ -65,9 +66,7 @@ st.markdown("""
 <div class="sub-title">리뷰 요약 기반 숙소 추천 AI</div>
 <div class="date-box">Ai hotel recommendation<br>2025.04.14</div>
 
-<div class="orange-circle">
-권지원<br>김정민<br>김지민
-</div>
+<hr>
 """, unsafe_allow_html=True)
 
 # 감성 항목
