@@ -3,4 +3,4 @@ pandas
 altair
 pydeck
 folium
-folium-static
+streamlit-folium
