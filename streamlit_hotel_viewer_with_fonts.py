@@ -11,7 +11,7 @@ df = pd.read_csv(data_path, encoding='euc-kr')
 
 # 페이지 설정
 st.set_page_config(page_title="호텔 리뷰 감성 요약", layout="wide")
-st.title("🏠 STAY-view")
+st.title("🏠 STAY-VIEW💬")
 
 # 감성 항목
 aspect_columns = ['소음', '가격', '위치', '서비스', '청결', '편의시설']
