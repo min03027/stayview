@@ -2,3 +2,5 @@ streamlit
 pandas
 altair
 pydeck
+folium
+folium_static
