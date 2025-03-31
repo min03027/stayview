@@ -21,6 +21,42 @@ selected_location = st.radio("지역을 선택하세요", sorted(locations), hor
 hotels = df[df['Location'] == selected_location]['Hotel'].unique()
 selected_hotel = st.selectbox("호텔을 선택하세요", sorted(hotels))
 
+# 📍 지도 시각화 추가
+st.markdown("---")
+st.subheader("📍 호텔 위치 지도")
+
+region_hotels = df[df['Location'] == selected_location].drop_duplicates(subset='Hotel')
+region_hotels['색상'] = region_hotels['Hotel'].apply(
+    lambda x: [0, 0, 255] if x == selected_hotel else [255, 0, 0]
+)
+
+hotel_layer = pdk.Layer(
+    'ScatterplotLayer',
+    data=region_hotels,
+    get_position='[Longitude, Latitude]',
+    get_fill_color='색상',
+    get_radius=200,
+    pickable=True
+)
+
+view_state = pdk.ViewState(
+    latitude=region_hotels['Latitude'].mean(),
+    longitude=region_hotels['Longitude'].mean(),
+    zoom=12,
+    pitch=0
+)
+
+r = pdk.Deck(
+    layers=[hotel_layer],
+    initial_view_state=view_state,
+    tooltip={"text": "{Hotel}"}
+)
+
+st.pydeck_chart(r)
+
+
+
+
 # 선택한 호텔 정보 필터링
 hotel_data = df[(df['Hotel'] == selected_hotel) & (df['Location'] == selected_location)].iloc[0]
 
@@ -56,38 +92,6 @@ chart = alt.Chart(plot_df).mark_bar().encode(
 
 st.altair_chart(chart, use_container_width=True)
 
-# 📍 지도 시각화 추가
-st.markdown("---")
-st.subheader("📍 호텔 위치 지도")
-
-region_hotels = df[df['Location'] == selected_location].drop_duplicates(subset='Hotel')
-region_hotels['색상'] = region_hotels['Hotel'].apply(
-    lambda x: [0, 0, 255] if x == selected_hotel else [255, 0, 0]
-)
-
-hotel_layer = pdk.Layer(
-    'ScatterplotLayer',
-    data=region_hotels,
-    get_position='[Longitude, Latitude]',
-    get_fill_color='색상',
-    get_radius=200,
-    pickable=True
-)
-
-view_state = pdk.ViewState(
-    latitude=region_hotels['Latitude'].mean(),
-    longitude=region_hotels['Longitude'].mean(),
-    zoom=12,
-    pitch=0
-)
-
-r = pdk.Deck(
-    layers=[hotel_layer],
-    initial_view_state=view_state,
-    tooltip={"text": "{Hotel}"}
-)
-
-st.pydeck_chart(r)
 
 # Raw 데이터 보기
 with st.expander("📄 원본 데이터 보기"):
