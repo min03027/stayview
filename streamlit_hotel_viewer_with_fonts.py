@@ -19,25 +19,37 @@ aspect_columns = ['소음', '가격', '위치', '서비스', '청결', '편의�
 locations = df['Location'].unique()
 selected_location = st.radio("지역을 선택하세요", sorted(locations), horizontal=True)
 
+# 지역 내 호텔 필터링
+location_hotels_df = (
+    df[df['Location'] == selected_location]
+    .drop_duplicates(subset='Hotel')
+    .sort_values(by='Hotel')
+)
+
+# 본문에서 호텔 selectbox 선택
+selected_hotel_main = st.selectbox("📌 호텔을 직접 선택하세요", location_hotels_df['Hotel'].tolist())
+
 # -------------------------- 사이드바 --------------------------
 st.sidebar.title("🔍 항목별 상위 호텔")
 
 # 정렬 기준 선택
 aspect_to_sort = st.sidebar.selectbox("정렬 기준", aspect_columns)
 
-# 지역 내 정렬된 호텔 리스트 (중복 제거)
+# 지역 내 정렬된 호텔 리스트
 sorted_hotels = (
     df[df['Location'] == selected_location]
     .sort_values(by=aspect_to_sort, ascending=False)
     .drop_duplicates(subset='Hotel')
 )
 
-# 점수와 함께 라벨 표시
+# Top 5 호텔 리스트 (점수 포함 라벨)
 top_hotels = sorted_hotels[['Hotel', aspect_to_sort]].head(5)
 hotel_labels = [f"{row['Hotel']} - ⭐ {row[aspect_to_sort]:.2f}" for _, row in top_hotels.iterrows()]
 hotel_map = dict(zip(hotel_labels, top_hotels['Hotel']))
 selected_hotel_label = st.sidebar.radio("상위 호텔 선택", hotel_labels)
-selected_hotel = hotel_map[selected_hotel_label]
+
+# ✅ 최종 선택 호텔: 본문 selectbox에서 고른 호텔이 우선
+selected_hotel = selected_hotel_main or hotel_map[selected_hotel_label]
 
 # -------------------------- 지도 --------------------------
 st.markdown("---")
