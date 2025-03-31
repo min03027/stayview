@@ -4,15 +4,71 @@ import altair as alt
 import folium
 from folium.plugins import MarkerCluster
 from streamlit_folium import folium_static
+import streamlit as st
+from PIL import Image
 
 # CSV 파일 경로
 data_path = "hotel_fin_0331_2.csv"
 df = pd.read_csv(data_path, encoding='euc-kr')
 
 # 페이지 설정
-st.set_page_config(page_title="호텔 리뷰 감성 요약", layout="wide")
-st.title("🏠 STAY-VIEW💬")
-st.markdown("## 리뷰 요약 기반 숙소 추천 AI🧠 ")
+st.set_page_config(layout="wide")
+
+# 배경 이미지
+st.image("image.png", use_column_width=True)
+
+# 상단 타이틀 + 부제
+st.markdown("""
+<style>
+.big-title {
+    font-size: 64px;
+    font-weight: 900;
+    color: black;
+    margin-bottom: 0;
+}
+.sub-title {
+    font-size: 36px;
+    font-weight: 600;
+    color: black;
+    margin-top: 0;
+}
+.date-box {
+    text-align: right;
+    font-size: 14px;
+    margin-top: -40px;
+    color: #555;
+}
+.top-nav {
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+.orange-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 60px;
+    background-color: #f97316;
+    color: white;
+    text-align: center;
+    padding-top: 35px;
+    font-weight: bold;
+    position: absolute;
+    left: 30px;
+    top: 200px;
+}
+</style>
+
+<div class="top-nav">PROFESSIONAL &nbsp;&nbsp;&nbsp; DATA</div>
+
+<div class="big-title">Stay-view</div>
+<div class="sub-title">리뷰 요약 기반 숙소 추천 AI</div>
+<div class="date-box">Ai hotel recommendation<br>2025.04.14</div>
+
+<div class="orange-circle">
+권지원<br>김정민<br>김지민
+</div>
+""", unsafe_allow_html=True)
 
 # 감성 항목
 aspect_columns = ['소음', '가격', '위치', '서비스', '청결', '편의시설']
