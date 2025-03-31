@@ -22,7 +22,7 @@ selected_region = st.radio("📍 지역을 선택하세요", regions, horizontal
 
 region_df = df[df['Location'] == selected_region]
 hotels = region_df['Hotel'].unique()
-selected_hotel = st.selectbox("🏨 호텔을 선택하세요", ["전체 보기"] + list(hotels))
+selected_hotel = st.selectbox("🏠 호텔을 선택하세요", ["전체 보기"] + list(hotels))
 
 # ---------------- 사이드바: 정렬 기준 및 Top 5 ----------------
 st.sidebar.title("🔍 항목별 상위 호텔")
