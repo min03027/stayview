@@ -1,16 +1,19 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
+import pydeck as pdk
 
 # CSV 파일 경로
-data_path = "final_all_loc_all_fin_2.csv"
+data_path = "hotel_fin_0331_1.csv"
 df = pd.read_csv(data_path, encoding='euc-kr')
 
 st.set_page_config(page_title="호텔 리뷰 감성 요약", layout="wide")
 st.title("🏨 호텔 리뷰 요약 및 항목별 분석")
 
-# 지역 선택 (radio 버튼 스타일)
-df = df.dropna(subset=['Hotel', 'Location'])  # NaN 제거
+# NaN 제거
+df = df.dropna(subset=['Hotel', 'Location', 'Latitude', 'Longitude'])
+
+# 지역 선택
 locations = df['Location'].unique()
 selected_location = st.radio("지역을 선택하세요", sorted(locations), horizontal=True)
 
@@ -32,7 +35,7 @@ with col2:
     st.subheader("🚫 부정 요약")
     st.write(hotel_data['Refined_Negative'])
 
-# 감성 점수 시각화
+# 항목별 평균 점수 시각화
 st.markdown("---")
 st.subheader("📊 항목별 평균 점수")
 
@@ -52,6 +55,39 @@ chart = alt.Chart(plot_df).mark_bar().encode(
 ).properties(width=600, height=400)
 
 st.altair_chart(chart, use_container_width=True)
+
+# 📍 지도 시각화 추가
+st.markdown("---")
+st.subheader("📍 호텔 위치 지도")
+
+region_hotels = df[df['Location'] == selected_location].drop_duplicates(subset='Hotel')
+region_hotels['색상'] = region_hotels['Hotel'].apply(
+    lambda x: [0, 0, 255] if x == selected_hotel else [255, 0, 0]
+)
+
+hotel_layer = pdk.Layer(
+    'ScatterplotLayer',
+    data=region_hotels,
+    get_position='[Longitude, Latitude]',
+    get_fill_color='색상',
+    get_radius=200,
+    pickable=True
+)
+
+view_state = pdk.ViewState(
+    latitude=region_hotels['Latitude'].mean(),
+    longitude=region_hotels['Longitude'].mean(),
+    zoom=12,
+    pitch=0
+)
+
+r = pdk.Deck(
+    layers=[hotel_layer],
+    initial_view_state=view_state,
+    tooltip={"text": "{Hotel}"}
+)
+
+st.pydeck_chart(r)
 
 # Raw 데이터 보기
 with st.expander("📄 원본 데이터 보기"):
