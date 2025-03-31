@@ -3,7 +3,7 @@ import pandas as pd
 import altair as alt
 
 # CSV 파일 경로
-data_path = "final_all.csv"
+data_path = "final_all_loc_all_fin_2.csv"
 df = pd.read_csv(data_path, encoding='euc-kr')
 
 st.set_page_config(page_title="호텔 리뷰 감성 요약", layout="wide")
