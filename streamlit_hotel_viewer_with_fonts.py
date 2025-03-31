@@ -13,6 +13,13 @@ st.title("🏨 호텔 리뷰 요약 및 항목별 분석")
 # NaN 제거
 df = df.dropna(subset=['Hotel', 'Location', 'Latitude', 'Longitude'])
 
+# 분석 항목 정의
+aspect_columns = ['소음', '가격', '위치', '서비스', '청결', '편의시설']
+
+# 왼쪽 사이드바: 항목별 상위 호텔
+st.sidebar.title("🔍 항목별 상위 호텔 보기")
+aspect_to_sort = st.sidebar.selectbox("정렬 기준을 선택하세요", aspect_columns)
+
 # 지역 선택
 locations = df['Location'].unique()
 selected_location = st.radio("지역을 선택하세요", sorted(locations), horizontal=True)
@@ -21,7 +28,16 @@ selected_location = st.radio("지역을 선택하세요", sorted(locations), hor
 hotels = df[df['Location'] == selected_location]['Hotel'].unique()
 selected_hotel = st.selectbox("호텔을 선택하세요", sorted(hotels))
 
-# 📍 지도 시각화 추가
+# 정렬 기준에 따라 지역 내 상위 호텔 표시
+sorted_hotels = df[df['Location'] == selected_location].dropna(subset=[aspect_to_sort])
+sorted_hotels = sorted_hotels.sort_values(by=aspect_to_sort, ascending=False)
+top_hotels = sorted_hotels[['Hotel', aspect_to_sort]].drop_duplicates(subset='Hotel').head(5)
+
+st.sidebar.markdown("#### 📈 상위 호텔 (점수순)")
+for i, row in top_hotels.iterrows():
+    st.sidebar.write(f"{row['Hotel']} - ⭐ {row[aspect_to_sort]:.2f}")
+
+# 📍 지도 시각화
 st.markdown("---")
 st.subheader("📍 호텔 위치 지도")
 
@@ -54,13 +70,10 @@ r = pdk.Deck(
 
 st.pydeck_chart(r)
 
-
-
-
 # 선택한 호텔 정보 필터링
 hotel_data = df[(df['Hotel'] == selected_hotel) & (df['Location'] == selected_location)].iloc[0]
 
-# 컬럼 나누기
+# 긍정/부정 요약
 col1, col2 = st.columns(2)
 
 with col1:
@@ -75,7 +88,6 @@ with col2:
 st.markdown("---")
 st.subheader("📊 항목별 평균 점수")
 
-aspect_columns = ['소음', '가격', '위치', '서비스', '청결', '편의시설']
 aspect_scores = hotel_data[aspect_columns]
 
 plot_df = pd.DataFrame({
@@ -92,9 +104,7 @@ chart = alt.Chart(plot_df).mark_bar().encode(
 
 st.altair_chart(chart, use_container_width=True)
 
-
-# Raw 데이터 보기
+# 원본 데이터 보기
 with st.expander("📄 원본 데이터 보기"):
     st.dataframe(df[df['Hotel'] == selected_hotel].reset_index(drop=True))
-
 
