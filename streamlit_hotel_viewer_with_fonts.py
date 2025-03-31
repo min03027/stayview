@@ -6,7 +6,7 @@ from folium.plugins import MarkerCluster
 from streamlit_folium import folium_static
 
 # CSV 파일 경로
-data_path = "hotel_fin_0331_1.csv"
+data_path = "hotel_fin_0331_2.csv"
 df = pd.read_csv(data_path, encoding='euc-kr')
 
 # 페이지 설정
