@@ -13,31 +13,38 @@ st.title("🏨 호텔 리뷰 요약 및 항목별 분석")
 # NaN 제거
 df = df.dropna(subset=['Hotel', 'Location', 'Latitude', 'Longitude'])
 
-# 분석 항목 정의
 aspect_columns = ['소음', '가격', '위치', '서비스', '청결', '편의시설']
 
-# 왼쪽 사이드바: 항목별 상위 호텔
-st.sidebar.title("🔍 항목별 상위 호텔 보기")
-aspect_to_sort = st.sidebar.selectbox("정렬 기준을 선택하세요", aspect_columns)
+# -------------------------- 사이드바 --------------------------
+st.sidebar.title("🔍 필터 & 순위 보기")
 
 # 지역 선택
 locations = df['Location'].unique()
-selected_location = st.radio("지역을 선택하세요", sorted(locations), horizontal=True)
+selected_location = st.sidebar.selectbox("지역 선택", sorted(locations))
 
-# 지역 기반 호텔 리스트
-hotels = df[df['Location'] == selected_location]['Hotel'].unique()
-selected_hotel = st.selectbox("호텔을 선택하세요", sorted(hotels))
+# 항목별 점수 필터링
+filters = {}
+for col in aspect_columns:
+    filters[col] = st.sidebar.slider(f"{col} 최소 점수", 0.0, 5.0, 0.0, 0.1)
 
-# 정렬 기준에 따라 지역 내 상위 호텔 표시
-sorted_hotels = df[df['Location'] == selected_location].dropna(subset=[aspect_to_sort])
-sorted_hotels = sorted_hotels.sort_values(by=aspect_to_sort, ascending=False)
-top_hotels = sorted_hotels[['Hotel', aspect_to_sort]].drop_duplicates(subset='Hotel').head(5)
+# 필터링된 호텔 목록 만들기
+filtered_df = df[df['Location'] == selected_location]
+for col in aspect_columns:
+    filtered_df = filtered_df[filtered_df[col] >= filters[col]]
 
-st.sidebar.markdown("#### 📈 상위 호텔 (점수순)")
-for i, row in top_hotels.iterrows():
-    st.sidebar.write(f"{row['Hotel']} - ⭐ {row[aspect_to_sort]:.2f}")
+# 정렬 기준 선택
+aspect_to_sort = st.sidebar.selectbox("정렬 기준", aspect_columns)
 
-# 📍 지도 시각화
+# 상위 호텔 리스트 (사이드바에서 선택할 수 있도록)
+sorted_hotels = (
+    filtered_df.sort_values(by=aspect_to_sort, ascending=False)
+    .drop_duplicates(subset='Hotel')
+)
+
+hotel_names = sorted_hotels['Hotel'].tolist()
+selected_hotel = st.sidebar.radio("호텔 선택", hotel_names)
+
+# -------------------------- 지도 --------------------------
 st.markdown("---")
 st.subheader("📍 호텔 위치 지도")
 
@@ -62,18 +69,15 @@ view_state = pdk.ViewState(
     pitch=0
 )
 
-r = pdk.Deck(
+st.pydeck_chart(pdk.Deck(
     layers=[hotel_layer],
     initial_view_state=view_state,
     tooltip={"text": "{Hotel}"}
-)
+))
 
-st.pydeck_chart(r)
-
-# 선택한 호텔 정보 필터링
+# -------------------------- 호텔 상세 요약 --------------------------
 hotel_data = df[(df['Hotel'] == selected_hotel) & (df['Location'] == selected_location)].iloc[0]
 
-# 긍정/부정 요약
 col1, col2 = st.columns(2)
 
 with col1:
@@ -84,7 +88,7 @@ with col2:
     st.subheader("🚫 부정 요약")
     st.write(hotel_data['Refined_Negative'])
 
-# 항목별 평균 점수 시각화
+# -------------------------- 점수 시각화 --------------------------
 st.markdown("---")
 st.subheader("📊 항목별 평균 점수")
 
@@ -104,7 +108,7 @@ chart = alt.Chart(plot_df).mark_bar().encode(
 
 st.altair_chart(chart, use_container_width=True)
 
-# 원본 데이터 보기
+# -------------------------- 원본 데이터 --------------------------
 with st.expander("📄 원본 데이터 보기"):
     st.dataframe(df[df['Hotel'] == selected_hotel].reset_index(drop=True))
 
