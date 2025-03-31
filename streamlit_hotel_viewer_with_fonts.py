@@ -16,33 +16,26 @@ df = df.dropna(subset=['Hotel', 'Location', 'Latitude', 'Longitude'])
 aspect_columns = ['소음', '가격', '위치', '서비스', '청결', '편의시설']
 
 # -------------------------- 사이드바 --------------------------
-st.sidebar.title("🔍 필터 & 순위 보기")
+st.sidebar.title("🔍 항목별 상위 호텔")
 
 # 지역 선택
 locations = df['Location'].unique()
 selected_location = st.sidebar.selectbox("지역 선택", sorted(locations))
 
-# 항목별 점수 필터링
-filters = {}
-for col in aspect_columns:
-    filters[col] = st.sidebar.slider(f"{col} 최소 점수", 0.0, 5.0, 0.0, 0.1)
-
-# 필터링된 호텔 목록 만들기
-filtered_df = df[df['Location'] == selected_location]
-for col in aspect_columns:
-    filtered_df = filtered_df[filtered_df[col] >= filters[col]]
-
 # 정렬 기준 선택
 aspect_to_sort = st.sidebar.selectbox("정렬 기준", aspect_columns)
 
-# 상위 호텔 리스트 (사이드바에서 선택할 수 있도록)
+# 정렬된 호텔 리스트
 sorted_hotels = (
-    filtered_df.sort_values(by=aspect_to_sort, ascending=False)
+    df[df['Location'] == selected_location]
+    .sort_values(by=aspect_to_sort, ascending=False)
     .drop_duplicates(subset='Hotel')
 )
 
-hotel_names = sorted_hotels['Hotel'].tolist()
-selected_hotel = st.sidebar.radio("호텔 선택", hotel_names)
+top_hotels = sorted_hotels[['Hotel', aspect_to_sort]].head(5)
+hotel_names = top_hotels['Hotel'].tolist()
+
+selected_hotel = st.sidebar.radio("상위 호텔 선택", hotel_names)
 
 # -------------------------- 지도 --------------------------
 st.markdown("---")
@@ -75,7 +68,7 @@ st.pydeck_chart(pdk.Deck(
     tooltip={"text": "{Hotel}"}
 ))
 
-# -------------------------- 호텔 상세 요약 --------------------------
+# -------------------------- 호텔 요약 --------------------------
 hotel_data = df[(df['Hotel'] == selected_hotel) & (df['Location'] == selected_location)].iloc[0]
 
 col1, col2 = st.columns(2)
@@ -88,7 +81,7 @@ with col2:
     st.subheader("🚫 부정 요약")
     st.write(hotel_data['Refined_Negative'])
 
-# -------------------------- 점수 시각화 --------------------------
+# -------------------------- 항목별 점수 시각화 --------------------------
 st.markdown("---")
 st.subheader("📊 항목별 평균 점수")
 
@@ -111,4 +104,5 @@ st.altair_chart(chart, use_container_width=True)
 # -------------------------- 원본 데이터 --------------------------
 with st.expander("📄 원본 데이터 보기"):
     st.dataframe(df[df['Hotel'] == selected_hotel].reset_index(drop=True))
+
 
