@@ -60,7 +60,7 @@ hr {
 }
 </style>
 
-<div class="top-nav">PROFESSIONAL &nbsp;&nbsp;&nbsp; DATA</div>
+<div class="top-nav">DATA &nbsp;&nbsp;&nbsp; PROJECT</div>
 
 <div class="big-title">Stay-view</div>
 <div class="sub-title">리뷰 요약 기반 숙소 추천 AI</div>
